@@ -10,3 +10,4 @@ client = MongoClient(mongo_uri)
 db = client["SSparks_db"]
 users_collection = db["users"]
 quiz_collection = db["quiz"]
+quiz_history_collection = db["quiz_history"]

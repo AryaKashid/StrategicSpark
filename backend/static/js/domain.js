@@ -15,5 +15,6 @@ VANTA.NET({
 });
 
 function startLearning(topicName) {
-    alert('Routing to Learning Material for: ' + topicName);
+    // Redirect to the quiz page with the selected topic
+    window.location.href = `/quiz_page?topic=${encodeURIComponent(topicName)}`;
 }

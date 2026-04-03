@@ -53,7 +53,7 @@
                     localStorage.setItem("authToken", data.token);
                     localStorage.setItem("authUser", JSON.stringify(data.user));
                     setTimeout(() => {
-                        window.location.href = "/dashboard";
+                        window.location.href = "/choice";
                     }, 1000);
                 } else {
                     showMessage(data.message || "Login failed", true);
