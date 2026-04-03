@@ -1,7 +1,10 @@
-from flask import Flask
+from flask import Flask, jsonify
+from flask_cors import CORS
 from db import users_collection, quiz_collection
+from ai import generate_quiz
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/")
 def home():
@@ -27,14 +30,12 @@ def add_quiz():
 @app.route("/quiz/<subject>")
 def quiz(subject):
     data = generate_quiz(subject)
-    return data
-
-from ai import generate_quiz
+    return jsonify({"quiz": data})   # ✅ FIXED
 
 @app.route("/test-ai")
 def test_ai():
     result = generate_quiz("HTML")
     return result
-    
+
 if __name__ == "__main__":
     app.run(debug=True)
