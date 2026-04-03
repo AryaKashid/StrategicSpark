@@ -1,6 +1,11 @@
+import os
 from pymongo import MongoClient
+from dotenv import load_dotenv
 
-client = MongoClient("mongodb+srv://hackspark:8806926846@clusspark.qsbermf.mongodb.net/")
+load_dotenv()
+
+mongo_uri = os.getenv("MONGO_URI")
+client = MongoClient(mongo_uri)
 
 db = client["SSparks_db"]
 users_collection = db["users"]

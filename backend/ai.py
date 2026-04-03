@@ -12,9 +12,19 @@ model = genai.GenerativeModel("gemini-2.5-flash")
 
 def generate_quiz(subject):
     prompt = f"""
-    Generate 7 MCQ questions on {subject}.
-    Each question should have 4 options and correct answer.
-    """
+Generate 7 MCQ questions on {subject}.
+
+Return ONLY in JSON format like this:
+[
+  {{
+    "question": "....",
+    "options": ["A", "B", "C", "D"],
+    "answer": "A"
+  }}
+]
+
+Do not add any extra text.
+"""
 
     response = model.generate_content(prompt)
     return response.text
