@@ -201,7 +201,6 @@ body {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    border: 6px solid rgba(255, 255, 255, 0.1);
     margin: 0 auto 1rem;
     display: flex;
     align-items: center;
@@ -209,10 +208,27 @@ body {
     font-size: 1.5rem;
     font-weight: 700;
     position: relative;
+    background: conic-gradient(rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 100%);
+    transition: background 0.5s ease;
 }
 
-#accuracy-circle { border-top-color: var(--primary); }
-#precision-circle { border-top-color: var(--secondary); }
+.metric-circle::after {
+    content: '';
+    position: absolute;
+    width: 88px;
+    height: 88px;
+    background: #0f172a; /* Same as the metric-card background area */
+    border-radius: 50%;
+}
+
+.metric-circle span {
+    position: relative;
+    z-index: 10;
+}
+
+#accuracy-circle { --primary-color: var(--primary); }
+#mastery-circle { --primary-color: var(--secondary); }
+#score-circle { --primary-color: #10b981; }
 
 .ai-summary {
     background: rgba(99, 102, 241, 0.1);
@@ -247,25 +263,93 @@ body {
     text-align: left;
 }
 
-.wrong-answer-card {
-    background: rgba(239, 68, 68, 0.05);
-    border: 1px solid rgba(239, 68, 68, 0.2);
+.review-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
     padding: 1.5rem;
-    border-radius: 16px;
+    border-radius: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    animation: slideUp 0.5s ease backwards;
 }
 
-.wrong-answer-card h4 {
-    color: #ef4444;
-    margin-bottom: 0.5rem;
+.review-card.wrong {
+    border-left: 4px solid #ef4444;
 }
 
-.wrong-answer-card .exp {
-    margin-top: 1rem;
+.review-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.review-q {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    line-height: 1.5;
+    color: #fff;
+}
+
+.review-ans-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.8rem;
     font-size: 0.95rem;
-    color: rgba(255,255,255,0.7);
-    font-style: italic;
-    border-left: 2px solid #ef4444;
-    padding-left: 1rem;
+}
+
+.review-ans-row .label {
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 500;
+    min-width: 100px;
+}
+
+.review-ans-row .val {
+    font-weight: 600;
+}
+
+.review-ans-row .val.wrong {
+    color: #f87171;
+    text-decoration: line-through;
+    opacity: 0.8;
+}
+
+.review-ans-row .val.correct {
+    color: #34d399;
+}
+
+.review-explanation {
+    margin-top: 1.5rem;
+    padding: 1.2rem;
+    background: rgba(99, 102, 241, 0.08);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    position: relative;
+}
+
+.review-explanation::before {
+    content: 'Deep Dive';
+    position: absolute;
+    top: -10px;
+    left: 15px;
+    background: var(--bg);
+    padding: 0 8px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--primary);
+    font-weight: 700;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .courses-grid {
@@ -277,19 +361,33 @@ body {
 }
 
 .course-card {
-    background: var(--glass);
+    background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border);
     padding: 1.5rem;
     border-radius: 20px;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.course-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+    opacity: 0.5;
 }
 
 .course-card:hover {
     border-color: var(--primary);
     background: rgba(255, 255, 255, 0.08);
     transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .course-platform {
@@ -298,27 +396,44 @@ body {
     letter-spacing: 1px;
     color: var(--secondary);
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    background: rgba(168, 85, 247, 0.1);
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    align-self: flex-start;
 }
 
 .course-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    color: #fff;
+    line-height: 1.4;
+}
+
+.course-desc {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
     flex-grow: 1;
 }
 
 .course-link {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     color: var(--primary);
     text-decoration: none;
     font-weight: 600;
-    font-size: 0.9rem;
-    margin-top: 1rem;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    gap: 5px;
 }
 
 .course-link:hover {
-    text-decoration: underline;
+    gap: 10px;
+    color: #fff;
 }
 
 .results-actions {
@@ -345,8 +460,15 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @media (max-width: 600px) {
@@ -354,7 +476,262 @@ body {
         flex-direction: column;
         align-items: center;
     }
+
     .results-title {
         font-size: 2rem;
     }
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Concept Weaver Bridge Lesson Styling */
+.bridge-lesson-card {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.bridge-lesson-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.bridge-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.spark-icon {
+    font-size: 1.8rem;
+    filter: drop-shadow(0 0 10px var(--secondary));
+}
+
+.bridge-header h3 {
+    color: var(--secondary);
+    font-size: 1.4rem;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.bridge-content h4 {
+    font-size: 1.2rem;
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+#bridge-lesson-text {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 2rem;
+}
+
+.bridge-actions {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.bridge-btn {
+    flex: 1;
+    min-width: 200px;
+    padding: 1.2rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: white;
+}
+
+.bridge-btn.voice {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+.bridge-btn.voice:hover {
+    background: rgba(99, 102, 241, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+}
+
+.bridge-btn.voice.active {
+    background: var(--primary);
+    animation: pulse-border 1.5s infinite;
+}
+
+.bridge-btn.video {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.bridge-btn.video:hover {
+    background: rgba(239, 68, 68, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+}
+
+@keyframes pulse-border {
+    0% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+    }
+}
+
+.why-it-matters {
+    font-size: 0.95rem;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    border-radius: 12px;
+    border-left: 4px solid var(--secondary);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Cheat Sheet Button (Gold Sparkly) */
+.btn-cheat-sheet {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
+}
+
+.btn-cheat-sheet:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(217, 119, 6, 0.5);
+}
+
+.btn-cheat-sheet:disabled {
+    background: #4b5563;
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Hidden PDF Template Styles */
+.hidden-pdf-template {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    width: 800px;
+    /* Standard A4ish width */
+    background: white;
+    color: #1f2937;
+    padding: 40px;
+    font-family: 'Inter', sans-serif;
+}
+
+.pdf-container {
+    border: 2px solid #6366f1;
+    padding: 30px;
+    border-radius: 10px;
+}
+
+.pdf-header {
+    text-align: center;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+}
+
+.pdf-header h1 {
+    color: #4f46e5;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.pdf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.pdf-section h3 {
+    color: #4338ca;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 5px;
+}
+
+.pdf-section ul {
+    list-style: none;
+}
+
+.pdf-section li {
+    margin-bottom: 10px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.pdf-section li::before {
+    content: '•';
+    color: #6366f1;
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+.pro-tips-box {
+    background: #f5f3ff;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px dashed #6366f1;
+}
+
+.reference-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.pdf-ref-item {
+    background: #f9fafb;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.pdf-ref-item b {
+    color: #4f46e5;
+}
+
+.pdf-footer {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-top: 40px;
 }

@@ -33,15 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const elements = {
         overlay: document.getElementById('loading-overlay'),
         content: document.getElementById('quiz-content'),
-        results: document.getElementById('results-screen'),
         qText: document.getElementById('question-text'),
         options: document.getElementById('options-container'),
         progress: document.getElementById('progress-fill'),
         count: document.getElementById('question-count'),
         nextBtn: document.getElementById('next-btn'),
         qMeta: document.getElementById('question-meta'),
-        finalScore: document.getElementById('final-score'),
-        analysis: document.getElementById('analysis-text')
     };
 
     // Fetch Questions
@@ -153,11 +150,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     questions: questions
                 })
             });
-            const data = await res.json();
-
+            
             if (res.ok) {
-                elements.overlay.classList.add('hidden');
-                renderResults(data);
+                const data = await res.json();
+                // Store results temporarily for the results page
+                localStorage.setItem('lastQuizResult', JSON.stringify({
+                    topic: topic,
+                    score: data.score,
+                    total: data.total,
+                    analysis: data.analysis,
+                    results: data.results
+                }));
+                window.location.href = '/results';
+            } else {
+                alert("Failed to submit quiz.");
+                window.location.href = '/dashboard';
             }
         } catch (err) {
             console.error(err);
@@ -165,63 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function renderResults(data) {
-        const analysis = data.analysis;
-        elements.results.style.display = 'block';
-        
-        // Update Metrics
-        document.getElementById('accuracy-value').textContent = Math.round(analysis.accuracy) + '%';
-        document.getElementById('precision-value').textContent = Math.round(analysis.precision) + '%';
-        
-        // Animate Circles (simple way)
-        document.getElementById('accuracy-circle').style.borderTopColor = `hsl(${analysis.accuracy * 1.2}, 70%, 50%)`;
-        document.getElementById('precision-circle').style.borderTopColor = `hsl(${analysis.precision * 1.2}, 70%, 50%)`;
-
-        // Summary
-        document.getElementById('summary-content').textContent = analysis.summary;
-
-        // Wrong Answers
-        const wrongContainer = document.getElementById('wrong-answers-container');
-        const reviewSection = document.getElementById('review-section');
-        wrongContainer.innerHTML = '';
-        
-        if (analysis.wrong_answers && analysis.wrong_answers.length > 0) {
-            reviewSection.classList.remove('hidden');
-            analysis.wrong_answers.forEach(w => {
-                const card = document.createElement('div');
-                card.className = 'wrong-answer-card';
-                card.innerHTML = `
-                    <h4>${w.question}</h4>
-                    <p style="color: rgba(255,255,255,0.6); margin: 0.5rem 0;">
-                        Your answer: <span style="color: #ef4444;">${w.user_answer}</span> | 
-                        Correct: <span style="color: #10b981;">${w.correct_answer}</span>
-                    </p>
-                    <p class="exp"><strong>Review Note:</strong> ${w.explanation}</p>
-                `;
-                wrongContainer.appendChild(card);
-            });
-        }
-
-        // Recommendations
-        const recContainer = document.getElementById('course-recommendations');
-        const recSection = document.getElementById('recommendations-section');
-        recContainer.innerHTML = '';
-
-        if (analysis.recommendations && analysis.recommendations.length > 0) {
-            recSection.classList.remove('hidden');
-            analysis.recommendations.forEach(r => {
-                const card = document.createElement('div');
-                card.className = 'course-card';
-                card.innerHTML = `
-                    <span class="course-platform">${r.platform}</span>
-                    <h4 class="course-title">${r.title}</h4>
-                    <p style="font-size: 0.9rem; color: rgba(255,255,255,0.6);">${r.description}</p>
-                    <a href="${r.link}" target="_blank" class="course-link">View Course →</a>
-                `;
-                recContainer.appendChild(card);
-            });
-        }
-    }
 
     startQuiz();
 });

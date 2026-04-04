@@ -37,48 +37,6 @@
             </div>
         </div>
 
-        <!-- Results State -->
-        <div id="results-screen" class="results-screen">
-            <h1 class="results-title">Quiz Complete!</h1>
-            
-            <!-- Metrics Row -->
-            <div class="metrics-container">
-                <div class="metric-card">
-                    <div class="metric-circle" id="accuracy-circle">
-                        <span id="accuracy-value">0%</span>
-                    </div>
-                    <p>Accuracy</p>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-circle" id="precision-circle">
-                        <span id="precision-value">0%</span>
-                    </div>
-                    <p>Precision</p>
-                </div>
-            </div>
-
-            <div class="ai-summary" id="ai-summary-text">
-                <h3>Expert Feedback</h3>
-                <p id="summary-content">Analyzing your performance...</p>
-            </div>
-
-            <!-- Detailed Review Section -->
-            <div id="review-section" class="hidden">
-                <h3 class="section-title">Review Key Concepts</h3>
-                <div id="wrong-answers-container" class="review-grid"></div>
-            </div>
-
-            <!-- Recommendations Section -->
-            <div id="recommendations-section" class="hidden">
-                <h3 class="section-title">Personalized Learning Path</h3>
-                <div id="course-recommendations" class="courses-grid"></div>
-            </div>
-            
-            <div class="results-actions">
-                <button onclick="window.location.href='/dashboard'" class="btn-next">Return to Dashboard</button>
-                <button onclick="window.location.reload()" class="btn-outline">Retake Quiz</button>
-            </div>
-        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>

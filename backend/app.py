@@ -268,14 +268,37 @@ def api_generate_quiz(current_user):
         # but for now let's just use 'intermediate' as the next step
         level = "intermediate"
         
+    # 1. Check Quiz Cache first (Saves your 20-request/day Gemini 2.5 quota)
+    existing_quiz = quiz_collection.find_one({"topic": topic, "level": level})
+    if existing_quiz:
+        print(f"CACHE HIT: Serving {topic} ({level}) quiz from database.")
+        return jsonify({
+            "questions": existing_quiz["questions"],
+            "topic": topic,
+            "level": level,
+            "from_cache": True
+        })
+
+    # 2. If not in cache, call Gemini 2.5 AI
     questions = generate_quiz(topic, level)
     
     if not questions:
-        return jsonify({"message": "AI could not generate questions. Try again."}), 500
+        return jsonify({"message": "AI Mentor is currently busy. Please try again in 30 seconds."}), 503
+    
+    # 3. Save new quiz to Cache for future users
+    quiz_doc = {
+        "topic": topic,
+        "level": level,
+        "questions": questions,
+        "created_at": datetime.datetime.now(datetime.timezone.utc)
+    }
+    quiz_collection.insert_one(quiz_doc)
         
     return jsonify({
         "questions": questions,
-        "level": level
+        "topic": topic,
+        "level": level,
+        "from_cache": False
     })
 
 @app.route("/api/quiz/submit", methods=["POST"])
@@ -303,10 +326,23 @@ def api_submit_quiz(current_user):
             "is_correct": is_correct
         })
     
-    # Generate AI Analysis
+    # Generate AI Analysis immediately (Concept Weaver flow)
     analysis = analyze_performance(topic, score, results)
     
-    # Save to history
+    # Check for AI Service limits/errors
+    if isinstance(analysis, dict) and analysis.get("error") == "rate_limit":
+        # Fallback to local scoring if AI is rate limited
+        accuracy = (score / len(questions)) * 100
+        analysis = {
+            "summary": "AI Mentor is currently busy, but here are your results!",
+            "accuracy": accuracy,
+            "mastery": accuracy * 0.8,
+            "wrong_answers": [],
+            "recommendations": [],
+            "concept_weaver": None
+        }
+    
+    # Save to history with full analysis
     quiz_attempt = {
         "user_email": current_user["email"],
         "topic": topic,
@@ -328,6 +364,10 @@ def api_submit_quiz(current_user):
 @app.route("/quiz_page")
 def quiz_page():
     return render_template("quiz.html")
+
+@app.route("/results")
+def results_page():
+    return render_template("results.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
